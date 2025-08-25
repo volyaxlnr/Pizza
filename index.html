@@ -16,7 +16,7 @@
       display: block;
       width: 100vw;
       height: 100vh;
-      background: url('https://i.ibb.co/N9LVdCm/grass-texture.jpg') repeat;
+      background: url('https://i.ibb.co/HP9S6DG/grass.png') repeat;
       background-size: 128px 128px;
     }
     #menu {
@@ -31,7 +31,7 @@
       display: block;
       margin: 5px 0;
       padding: 8px;
-      width: 100px;
+      width: 120px;
       background: #666;
       color: #fff;
       border: none;
@@ -68,7 +68,7 @@
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
-    let coins = 100;
+    let coins = 100; // Başlangıç coin
     let buildSpots = [
       {x:200, y:200, occupied:false},
       {x:500, y:300, occupied:false},
@@ -85,7 +85,7 @@
     function draw() {
       ctx.clearRect(0,0,canvas.width,canvas.height);
 
-      // Draw build spots
+      // Build spots
       buildSpots.forEach(spot => {
         ctx.beginPath();
         ctx.arc(spot.x, spot.y, 30, 0, Math.PI*2);
@@ -95,7 +95,7 @@
         ctx.stroke();
       });
 
-      // Draw towers
+      // Towers
       towers.forEach(t => {
         ctx.beginPath();
         ctx.arc(t.x, t.y, 25, 0, Math.PI*2);
@@ -113,7 +113,7 @@
       const mouseX = e.clientX - rect.left;
       const mouseY = e.clientY - rect.top;
 
-      // Check if clicked on a build spot
+      // Check if clicked on build spot
       selectedSpot = null;
       for (let spot of buildSpots) {
         const dist = Math.hypot(mouseX-spot.x, mouseY-spot.y);
