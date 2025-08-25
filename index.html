@@ -1,569 +1,153 @@
-<!doctype html>
-<html lang="tr">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
-<title>Candy Cats Tower Defense 🍬🐱</title>
-<style>
-:root{
-  --bg:#f6f9ff; --panel:#ffffff; --muted:#7b8aa3; --accent1:#ff6b6b; --accent2:#ffd166; --accent3:#6bf5d6;
-  --card-shadow: 0 10px 30px rgba(20,30,60,0.08);
-}
-*{box-sizing:border-box; -webkit-tap-highlight-color: transparent;}
-html,body{height:100%; margin:0; font-family:Inter, Roboto, Arial, sans-serif; background:linear-gradient(180deg,#f0f6ff,#f6f9ff); color:#21314a;}
-header{display:flex;gap:12px;align-items:center;padding:12px;position:sticky;top:0;background:transparent;}
-.logo{width:48px;height:48px;border-radius:10px;background:linear-gradient(180deg,#ffdede,#ffb3b3);display:grid;place-items:center;box-shadow:var(--card-shadow);border:1px solid rgba(0,0,0,0.04);}
-.title{font-weight:700;font-size:18px;color:#102030}
-.controls{margin-left:auto;display:flex;gap:8px;align-items:center}
-.pill{background:var(--panel);padding:8px 10px;border-radius:14px;border:1px solid rgba(20,30,60,0.04);box-shadow:var(--card-shadow);font-size:13px;color:var(--muted)}
-
-/* layout */
-.container{max-width:1200px;margin:10px auto;padding:12px;display:grid;grid-template-columns: 1fr;gap:12px;}
-@media(min-width:980px){ .container{grid-template-columns: 360px 1fr 300px;}}
-.panel{background:var(--panel);border-radius:14px;padding:12px;box-shadow:var(--card-shadow);border:1px solid rgba(20,30,60,0.03)}
-
-/* left palette */
-.palette-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
-.tower-card{display:flex;gap:8px;align-items:center;padding:10px;border-radius:10px;background:linear-gradient(180deg,#fff,#fbfbff);border:1px solid rgba(0,0,0,0.03);cursor:pointer;user-select:none}
-.tower-icon{width:56px;height:56px;border-radius:10px;display:grid;place-items:center;font-weight:700;color:#fff}
-.tower-name{font-weight:700;font-size:14px}
-.tower-meta{font-size:12px;color:var(--muted)}
-
-/* center: game area */
-.game-wrap{display:grid;grid-template-rows:auto 1fr;gap:8px}
-hud{display:flex;gap:8px;align-items:center;padding:8px}
-canvas{width:100%;height:60vh;max-height:720px;border-radius:12px;background:linear-gradient(180deg,#fff7f2,#fff);display:block;border:6px solid rgba(255,255,255,0.6);box-shadow:0 18px 60px rgba(30,40,80,0.08);touch-action:none}
-
-/* right: score/order */
-.stat{display:flex;flex-direction:column;gap:8px}
-.stat .value{font-size:20px;font-weight:800}
-.btn{padding:10px 12px;border-radius:10px;border:none;background:linear-gradient(180deg,#ffd166,#ffb703);color:#231a00;font-weight:700;cursor:pointer}
-
-/* small */
-.small{font-size:12px;color:var(--muted)}
-
-/* tooltips and overlays */
-.overlay{position:fixed;left:0;right:0;top:0;bottom:0;display:none;align-items:center;justify-content:center;background:rgba(10,12,20,0.45);z-index:60}
-.modal{background:#fff;padding:16px;border-radius:12px;max-width:420px;width:92%;box-shadow:0 20px 60px rgba(0,0,0,0.25);color:#111}
-.flex-row{display:flex;gap:8px;align-items:center}
-
-</style>
+  <meta charset="UTF-8">
+  <title>Tower Defence Demo</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      width: 100%;
+      overflow: hidden;
+      background: #333;
+    }
+    canvas {
+      display: block;
+      width: 100vw;
+      height: 100vh;
+      background: url('https://i.ibb.co/N9LVdCm/grass-texture.jpg') repeat;
+      background-size: 128px 128px;
+    }
+    #menu {
+      position: absolute;
+      background: rgba(0,0,0,0.8);
+      border: 2px solid #fff;
+      border-radius: 8px;
+      padding: 10px;
+      display: none;
+    }
+    #menu button {
+      display: block;
+      margin: 5px 0;
+      padding: 8px;
+      width: 100px;
+      background: #666;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    #coinDisplay {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      color: white;
+      font-size: 20px;
+      font-family: Arial, sans-serif;
+      background: rgba(0,0,0,0.5);
+      padding: 5px 10px;
+      border-radius: 5px;
+    }
+  </style>
 </head>
 <body>
-<header>
-  <div class="logo" aria-hidden="true">
-    <!-- candy cat svg -->
-    <svg width="38" height="38" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <rect width="64" height="64" rx="10" fill="#ffdede"/>
-      <g transform="translate(8,8)">
-        <circle cx="24" cy="24" r="16" fill="#fff3d6" stroke="#ffb3b3" stroke-width="2"/>
-        <circle cx="18" cy="22" r="2.8" fill="#4b3a3a"/>
-        <circle cx="30" cy="22" r="2.8" fill="#4b3a3a"/>
-        <path d="M18 30 Q24 36 30 30" stroke="#4b3a3a" stroke-width="2" stroke-linecap="round" fill="none"/>
-      </g>
-    </svg>
+  <canvas id="gameCanvas"></canvas>
+  <div id="coinDisplay">Coins: 100</div>
+  <div id="menu">
+    <button onclick="buildTower('archer')">Archer (50)</button>
+    <button onclick="buildTower('mage')">Mage (70)</button>
   </div>
-  <div>
-    <div class="title">Candy Cats TD</div>
-    <div class="small">Mobile-friendly tower defense — Candy-style visuals</div>
-  </div>
-  <div class="controls">
-    <div class="pill" id="waveLabel">Wave: 0</div>
-    <div class="pill" id="coinsLabel">Coin: 0</div>
-  </div>
-</header>
 
-<main class="container">
-  <aside class="panel">
-    <h3>Kuleler</h3>
-    <div class="palette-grid" id="towerPalette"></div>
-    <div style="height:12px"></div>
-    <div class="small">Dokun: bir kule seç, sonra oyun alanına dokunarak yerleştir.</div>
-    <div class="small" style="margin-top:8px">Kuleleri seçip sürükleyerek sahaya bırakma mobilde desteklenir.</div>
-  </aside>
+  <script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    const menu = document.getElementById('menu');
+    const coinDisplay = document.getElementById('coinDisplay');
 
-  <section class="panel game-wrap">
-    <div style="display:flex;justify-content:space-between;align-items:center">
-      <div class="small">Harita — düşman yolu kırmızı çizgiyle gösterilir</div>
-      <div style="display:flex;gap:8px">
-        <button class="btn" id="startWaveBtn">Başlat</button>
-        <button class="btn" id="speedBtn" style="background:linear-gradient(180deg,#bfe3ff,#6bb8ff)">Hız x1</button>
-      </div>
-    </div>
-    <canvas id="gameCanvas" width="800" height="800"></canvas>
-    <div style="display:flex;gap:8px;margin-top:6px;align-items:center">
-      <div class="small">Seçili Kule: <span id="selectedTowerName">—</span></div>
-      <div style="margin-left:auto" class="small">Can: <span id="baseHp">20</span></div>
-    </div>
-  </section>
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
 
-  <aside class="panel stat">
-    <div><div class="small">Skor</div><div class="value" id="scoreVal">0</div></div>
-    <div><div class="small">Seviye</div><div class="value" id="levelVal">1</div></div>
-    <div style="display:flex;gap:8px">
-      <button id="newGameBtn" class="btn" style="background:linear-gradient(180deg,#9ad6ff,#6bb8ff)">Yeni Oyun</button>
-    </div>
-    <div style="margin-top:8px">
-      <div class="small">Talimatlar</div>
-      <ul class="small">
-        <li>Kule seç → sahaya dokun</li>
-        <li>Kuleye dokun → upgrade menüsü</li>
-        <li>Boss her 5. dalgada gelir</li>
-      </ul>
-    </div>
-  </aside>
-</main>
+    let coins = 100;
+    let buildSpots = [
+      {x:200, y:200, occupied:false},
+      {x:500, y:300, occupied:false},
+      {x:800, y:400, occupied:false},
+      {x:400, y:500, occupied:false}
+    ];
+    let towers = [];
+    let selectedSpot = null;
 
-<!-- modal -->
-<div class="overlay" id="overlay"><div class="modal" id="modalBox"></div></div>
+    function updateCoins() {
+      coinDisplay.innerText = "Coins: " + coins;
+    }
 
-<script>
-/*
-  Candy Cats TD
-  Single-file HTML mobile-friendly Tower Defense prototype
-  Features included (simplified but functional):
-   - 10 enemy types (different speed/HP/color)
-   - 3 elemental towers (Fire, Water, Lightning) each with 3 upgrade levels
-   - Coins drop on enemy death, used for upgrades
-   - Waves and boss every 5 waves
-   - Score and level system
-   - Touch controls for mobile
-   - All graphics as inline SVG/dataURIs for offline use
-*/
+    function draw() {
+      ctx.clearRect(0,0,canvas.width,canvas.height);
 
-const CONFIG = {
-  canvasSize: 800,
-  path: [ {x:80,y:120},{x:220,y:120},{x:220,y:360},{x:480,y:360},{x:480,y:140},{x:680,y:140},{x:680,y:520},{x:360,y:520},{x:360,y:720} ],
-  towerSlots: [],
-  baseHp: 20,
-  startCoins: 120,
-  waveInterval: 1200,
-  wavesPerBoss: 5,
-  maxTowers: 7
-};
+      // Draw build spots
+      buildSpots.forEach(spot => {
+        ctx.beginPath();
+        ctx.arc(spot.x, spot.y, 30, 0, Math.PI*2);
+        ctx.fillStyle = spot.occupied ? "gray" : "rgba(0,255,0,0.4)";
+        ctx.fill();
+        ctx.strokeStyle = "white";
+        ctx.stroke();
+      });
 
-const ASSETS = {
-  icons:{
-    fire: svgData(`<svg xmlns='http://www.w3.org/2000/svg' width='64' height='64'><circle cx='32' cy='32' r='30' fill='%23ffb3b3'/><path d='M32 15 Q36 26 28 30 Q36 36 34 48 Q24 36 32 15' fill='%23ff6b6b'/></svg>`),
-    water: svgData(`<svg xmlns='http://www.w3.org/2000/svg' width='64' height='64'><circle cx='32' cy='32' r='30' fill='%23cfe9ff'/><path d='M32 14 Q40 28 32 36 Q24 28 32 14' fill='%236bb8ff'/></svg>`),
-    bolt: svgData(`<svg xmlns='http://www.w3.org/2000/svg' width='64' height='64'><circle cx='32' cy='32' r='30' fill='%23fff2cf'/><path d='M28 18 L40 18 L32 34 L44 34 L22 54 L30 36 L22 36 Z' fill='%23ffd166'/></svg>`)
-  },
-  enemyColors: ['#ff9aa2','#ffb7b2','#ffdac1','#e2f0cb','#b5ead7','#c7ceea','#d5d5ff','#f3c4fb','#fbe4a9','#c1e1ff'],
-  bossColor: '#7b61ff'
-};
+      // Draw towers
+      towers.forEach(t => {
+        ctx.beginPath();
+        ctx.arc(t.x, t.y, 25, 0, Math.PI*2);
+        ctx.fillStyle = t.type === 'archer' ? "brown" : "purple";
+        ctx.fill();
+        ctx.strokeStyle = "black";
+        ctx.stroke();
+      });
 
-function svgData(s){ return 'data:image/svg+xml;utf8,' + encodeURIComponent(s); }
+      requestAnimationFrame(draw);
+    }
 
-let state = {
-  coins: CONFIG.startCoins,
-  score: 0,
-  wave: 0,
-  level: 1,
-  running: false,
-  enemies: [],
-  towers: [],
-  projectiles: [],
-  placedCoins: [],
-  baseHp: CONFIG.baseHp,
-  selectedTowerType: null,
-  selectedTowerRef: null,
-  speedMultiplier: 1
-};
+    canvas.addEventListener('click', (e) => {
+      const rect = canvas.getBoundingClientRect();
+      const mouseX = e.clientX - rect.left;
+      const mouseY = e.clientY - rect.top;
 
-const canvas = document.getElementById('gameCanvas');
-const ctx = canvas.getContext('2d');
-resizeCanvas();
-window.addEventListener('resize', resizeCanvas);
+      // Check if clicked on a build spot
+      selectedSpot = null;
+      for (let spot of buildSpots) {
+        const dist = Math.hypot(mouseX-spot.x, mouseY-spot.y);
+        if (dist < 30 && !spot.occupied) {
+          selectedSpot = spot;
+          break;
+        }
+      }
 
-function resizeCanvas(){
-  canvas.width = CONFIG.canvasSize;
-  canvas.height = CONFIG.canvasSize;
-}
-
-function distance(a,b){ const dx=a.x-b.x, dy=a.y-b.y; return Math.sqrt(dx*dx+dy*dy); }
-function lerp(a,b,t){ return a + (b-a)*t; }
-function rand(min,max){ return Math.random()*(max-min)+min; }
-
-const ENEMY_TYPES = [
-  {id:0,name:'Candy Bug',hp:8,spd:0.6,score:5,coin:5},
-  {id:1,name:'Gum Runner',hp:6,spd:1.1,score:6,coin:6},
-  {id:2,name:'Marshmallow',hp:12,spd:0.45,score:9,coin:8},
-  {id:3,name:'Lolli',hp:9,spd:0.9,score:7,coin:6},
-  {id:4,name:'Jelly',hp:16,spd:0.5,score:10,coin:9},
-  {id:5,name:'Bubble',hp:5,spd:1.3,score:5,coin:4},
-  {id:6,name:'Mint',hp:11,spd:0.75,score:8,coin:7},
-  {id:7,name:'Sprinkle',hp:14,spd:0.6,score:10,coin:9},
-  {id:8,name:'Toffee',hp:20,spd:0.45,score:14,coin:12},
-  {id:9,name:'Ginger',hp:18,spd:0.65,score:12,coin:10}
-];
-
-function spawnWave(wave){
-  state.wave = wave;
-  document.getElementById('waveLabel').textContent = 'Wave: ' + wave;
-  const enemies = [];
-  const count = 4 + Math.floor(wave*0.9);
-  for(let i=0;i<count;i++){
-    let tIdx = Math.min(ENEMY_TYPES.length-1, Math.floor(rand(0, Math.min(ENEMY_TYPES.length, 1 + wave*0.6))));
-    if(Math.random() < 0.12) tIdx = Math.floor(rand(0,ENEMY_TYPES.length));
-    const base = ENEMY_TYPES[tIdx];
-    const hp = Math.round(base.hp * (1 + wave*0.08));
-    const spd = base.spd * (1 + wave*0.01);
-    enemies.push(createEnemy(base.name, hp, spd, base.score, base.coin, tIdx));
-  }
-  if(wave % CONFIG.wavesPerBoss === 0){
-    const bossHp = 100 + wave*30;
-    enemies.push(createEnemy('Candy Boss', bossHp, 0.35, 200 + wave*10, 120 + wave*8, 'boss', true));
-  }
-  let delay = 0;
-  enemies.forEach((e,i)=>{
-    setTimeout(()=> state.enemies.push(e), delay);
-    delay += 650 / state.speedMultiplier;
-  });
-}
-
-function createEnemy(name, hp, spd, scoreVal, coin, typeIndex, isBoss=false){
-  return {
-    id:Math.random().toString(36).slice(2,9),
-    name, maxHp:hp, hp, spd, scoreVal, coin, typeIndex,
-    pos:{x: CONFIG.path[0].x, y: CONFIG.path[0].y}, pathIndex:0, progress:0, isBoss:!!isBoss
-  };
-}
-
-const TOWER_DEFS = [
-  {key:'fire', name:'Ateş Kulesi', baseCost:60, baseDmg:8, range:110, speed:0.9, icon:ASSETS.icons.fire, element:'fire'},
-  {key:'water', name:'Su Kulesi', baseCost:50, baseDmg:6, range:130, speed:0.8, icon:ASSETS.icons.water, element:'water'},
-  {key:'bolt', name:'Yıldırım Kulesi', baseCost:80, baseDmg:12, range:150, speed:1.6, icon:ASSETS.icons.bolt, element:'bolt'}
-];
-
-function createTower(def, x,y){
-  return {
-    id:Math.random().toString(36).slice(2,9),
-    def, x,y, level:1,
-    cooldown:0
-  };
-}
-
-function buildPalette(){
-  const pal = document.getElementById('towerPalette');
-  pal.innerHTML = '';
-  TOWER_DEFS.forEach(def=>{
-    const el = document.createElement('div');
-    el.className='tower-card';
-    el.innerHTML = `<div class="tower-icon" style="background:linear-gradient(180deg,#fff,#f9f9f9);border:1px solid rgba(0,0,0,0.04)"><img src="${def.icon}" width="44" height="44" /></div>
-      <div style="flex:1"><div class="tower-name">${def.name}</div><div class="tower-meta">Maliyet: ${def.baseCost} • Dmg: ${def.baseDmg}</div></div>`;
-    el.addEventListener('click', ()=>{
-      state.selectedTowerType = def;
-      state.selectedTowerRef = null;
-      document.getElementById('selectedTowerName').textContent = def.name;
+      if (selectedSpot) {
+        menu.style.left = (e.clientX + 10) + "px";
+        menu.style.top = (e.clientY + 10) + "px";
+        menu.style.display = "block";
+      } else {
+        menu.style.display = "none";
+      }
     });
-    pal.appendChild(el);
-  });
-}
-buildPalette();
-updateHud();
 
-let touchStart = null;
-canvas.addEventListener('pointerdown', (e)=>{
-  e.preventDefault();
-  const pos = screenToWorld(e);
-  if(state.selectedTowerType && state.towers.length < CONFIG.maxTowers){
-    if(state.coins >= state.selectedTowerType.baseCost){
-      const tower = createTower(state.selectedTowerType, pos.x, pos.y);
-      state.towers.push(tower);
-      state.coins -= state.selectedTowerType.baseCost;
-      updateHud();
-      state.selectedTowerType = null;
-      document.getElementById('selectedTowerName').textContent = '—';
-      return;
-    } else {
-      showModal('Yetersiz coin', `Bu kule için ${state.selectedTowerType.baseCost} coin gerekiyor.`);
-      return;
-    }
-  }
-  let clicked = null;
-  for(let t of state.towers){
-    if(distance({x:t.x,y:t.y}, pos) < 46){ clicked = t; break; }
-  }
-  if(clicked){
-    openTowerMenu(clicked);
-    return;
-  }
-});
-
-function screenToWorld(e){
-  const rect = canvas.getBoundingClientRect();
-  const sx = (e.clientX - rect.left) * (canvas.width / rect.width);
-  const sy = (e.clientY - rect.top) * (canvas.height / rect.height);
-  return {x:sx, y:sy};
-}
-
-function openTowerMenu(tower){
-  const modal = document.getElementById('modalBox');
-  modal.innerHTML = `<h3>${tower.def.name} (Seviye ${tower.level})</h3>
-    <div class="small">Hasar: ${tower.def.baseDmg * tower.level}</div>
-    <div class="small">Menzil: ${tower.def.range}</div>
-    <div style="height:10px"></div>
-    <div style="display:flex;gap:8px"><button id="upgradeBtn" class="btn">Upgrade (${upgradeCost(tower)})</button><button id="sellBtn" class="btn" style="background:linear-gradient(180deg,#ff9aa2,#ff6b6b)">Sat</button></div>`;
-  document.getElementById('overlay').style.display='flex';
-  document.getElementById('overlay').onclick = (ev)=>{ if(ev.target === document.getElementById('overlay')) closeModal(); };
-  document.getElementById('upgradeBtn').onclick = ()=>{
-    const cost = upgradeCost(tower);
-    if(state.coins >= cost && tower.level < 3){
-      state.coins -= cost;
-      tower.level += 1;
-      updateHud();
-      closeModal();
-    } else {
-      showModal('Upgrade başarısız','Yeterli coin yok veya seviye maksimum.');
-    }
-  };
-  document.getElementById('sellBtn').onclick = ()=>{
-    const refund = Math.round(tower.def.baseCost * 0.5 * tower.level);
-    state.coins += refund;
-    state.towers = state.towers.filter(x=>x!==tower);
-    updateHud();
-    closeModal();
-  };
-}
-
-function upgradeCost(t){ return Math.round(t.def.baseCost * (t.level * 1.6)); }
-function closeModal(){ document.getElementById('overlay').style.display='none'; document.getElementById('overlay').onclick=null; }
-
-function showModal(title, text){
-  const modal = document.getElementById('modalBox');
-  modal.innerHTML = `<h3>${title}</h3><div style="height:8px"></div><div>${text}</div><div style="height:12px"></div><div style="text-align:right"><button class="btn" onclick="closeModal()">Kapat</button></div>`;
-  document.getElementById('overlay').style.display='flex';
-}
-
-let lastTime = 0;
-function gameLoop(ts){
-  const dt = Math.min(40, ts - lastTime) * 0.001 * state.speedMultiplier;
-  lastTime = ts;
-  update(dt);
-  render();
-  requestAnimationFrame(gameLoop);
-}
-requestAnimationFrame(gameLoop);
-
-function update(dt){
-  const path = CONFIG.path;
-  for(let e of state.enemies){
-    if(e.hp <= 0) continue;
-    const targetIndex = Math.min(e.pathIndex+1, path.length-1);
-    const target = path[targetIndex];
-    const dir = {x: target.x - e.pos.x, y: target.y - e.pos.y};
-    const dist = Math.sqrt(dir.x*dir.x + dir.y*dir.y) || 1;
-    const nv = {x: dir.x/dist, y: dir.y/dist};
-    const move = e.spd * 60 * dt;
-    e.pos.x += nv.x * move;
-    e.pos.y += nv.y * move;
-    if(distance(e.pos, target) < 6){
-      e.pathIndex = targetIndex;
-      if(e.pathIndex >= path.length-1){
-        e.hp = 0;
-        state.baseHp -= 1;
-        updateHud();
+    function buildTower(type) {
+      if (!selectedSpot) return;
+      let cost = type === 'archer' ? 50 : 70;
+      if (coins >= cost) {
+        coins -= cost;
+        updateCoins();
+        towers.push({x:selectedSpot.x, y:selectedSpot.y, type:type});
+        selectedSpot.occupied = true;
+        menu.style.display = "none";
+      } else {
+        alert("Not enough coins!");
       }
     }
-  }
 
-  for(let t of state.towers){
-    t.cooldown -= dt;
-    const range = t.def.range + (t.level-1)*14;
-    if(t.cooldown <= 0){
-      let target = null; let bestD=9999;
-      for(let e of state.enemies){
-        if(e.hp <= 0) continue;
-        const d = distance({x:t.x,y:t.y}, e.pos);
-        if(d <= range && d < bestD){ bestD = d; target = e; }
-      }
-      if(target){
-        const dmg = Math.round(t.def.baseDmg * (1 + 0.45*(t.level-1)));
-        t.cooldown = Math.max(0.12, 1 / (t.def.speed + 0.15*(t.level-1)));
-        state.projectiles.push({x:t.x,y:t.y,tx:target,pos:0,speed: 6 + t.level*2, dmg, element:t.def.element});
-      }
-    }
-  }
-
-  for(let p of state.projectiles){
-    if(!p.pos) p.pos = 0;
-    p.pos += p.speed * dt * 60;
-    const tx = p.tx.pos.x, ty = p.tx.pos.y;
-    p.x = lerp(p.x, tx, Math.min(1, 0.06 * p.speed * dt));
-    p.y = lerp(p.y, ty, Math.min(1, 0.06 * p.speed * dt));
-    if(distance(p, p.tx.pos) < 18){
-      applyDamage(p.tx, p.dmg, p.element);
-      p.done = true;
-    }
-  }
-  state.projectiles = state.projectiles.filter(p=>!p.done);
-
-  for(let i=state.enemies.length-1;i>=0;i--){
-    const e = state.enemies[i];
-    if(e.hp <= 0 && !e._collected){
-      state.placedCoins.push({x:e.pos.x, y:e.pos.y, value: e.coin, life: 10});
-      state.score += e.scoreVal;
-      state.coins += e.coin;
-      e._collected = true;
-      updateHud();
-    }
-  }
-  for(let i=state.placedCoins.length-1;i>=0;i--){
-    state.placedCoins[i].life -= dt;
-    if(state.placedCoins[i].life <= 0) state.placedCoins.splice(i,1);
-  }
-
-  state.enemies = state.enemies.filter(e => !(e.hp<=0 && e._collected));
-
-  if(state.baseHp <= 0){
-    endGame(false);
-  }
-  if(state.running && state.enemies.length === 0){
-    state.running = false;
-    setTimeout(()=> startWave(state.wave+1), 800);
-  }
-}
-
-function applyDamage(enemy, dmg, element){
-  if(enemy.hp <= 0) return;
-  let final = dmg;
-  if(element === 'fire') final = Math.round(dmg * 1.0 + (Math.random()<0.12 ? dmg*0.6 : 0));
-  if(element === 'bolt') final = Math.round(dmg * (1.0 + (Math.random()<0.25 ? 0.8 : 0)));
-  if(element === 'water') final = Math.round(dmg * (1.0 + (enemy.isBoss? -0.1 : 0.1)));
-  enemy.hp -= final;
-  enemy._pulse = 0.35;
-  if(enemy.hp <= 0){
-    enemy._deadAt = Date.now();
-  }
-}
-
-function render(){
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-  drawBackground();
-  drawPath();
-  for(let t of state.towers) drawTower(t);
-  for(let e of state.enemies) drawEnemy(e);
-  for(let p of state.projectiles) drawProjectile(p);
-  for(let c of state.placedCoins) drawCoin(c);
-  drawHudOverlay();
-}
-
-function drawBackground(){
-  const grd = ctx.createLinearGradient(0,0,0,canvas.height);
-  grd.addColorStop(0,'#fff7fb'); grd.addColorStop(1,'#fffaf2');
-  ctx.fillStyle = grd;
-  ctx.fillRect(0,0,canvas.width,canvas.height);
-  for(let i=0;i<20;i++){
-    ctx.fillStyle = 'rgba(255,255,255,0.12)';
-    ctx.beginPath();
-    ctx.ellipse(30 + (i*73)%canvas.width, 20 + ((i*43)%canvas.height), 8,8,0,0,Math.PI*2);
-    ctx.fill();
-  }
-}
-
-function drawPath(){
-  ctx.lineWidth = 20;
-  ctx.strokeStyle = 'rgba(255,80,80,0.12)';
-  ctx.lineCap = 'round';
-  ctx.beginPath();
-  const p0 = CONFIG.path[0]; ctx.moveTo(p0.x, p0.y);
-  for(let i=1;i<CONFIG.path.length;i++){ ctx.lineTo(CONFIG.path[i].x, CONFIG.path[i].y); }
-  ctx.stroke();
-  ctx.lineWidth = 10; ctx.strokeStyle = 'rgba(255,80,80,0.18)'; ctx.stroke();
-}
-
-function drawTower(t){
-  ctx.beginPath();
-  ctx.fillStyle = 'rgba(30,30,40,0.06)';
-  ctx.ellipse(t.x, t.y+18, 42,18,0,0,Math.PI*2); ctx.fill();
-  ctx.fillStyle = t.def.element==='fire' ? '#ff6b6b' : t.def.element==='water' ? '#6bb8ff' : '#ffd166';
-  ctx.beginPath(); ctx.roundRect(t.x-26, t.y-26, 52,52,10); ctx.fill();
-  ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2; ctx.strokeRect(t.x-26, t.y-26, 52,52);
-  ctx.fillStyle = '#111'; ctx.font = '12px sans-serif'; ctx.textAlign='center'; ctx.fillText('Lv'+t.level, t.x, t.y+36);
-}
-
-function drawEnemy(e){
-  const col = e.isBoss ? ASSETS.bossColor : ASSETS.enemyColors[e.typeIndex % ASSETS.enemyColors.length];
-  ctx.save();
-  const r = e.isBoss ? 28 : lerp(12,18, Math.min(1, e.maxHp? e.maxHp/30:1));
-  const alpha = e._pulse ? Math.max(0, e._pulse -= 0.02) : 1;
-  ctx.globalAlpha = alpha;
-  ctx.beginPath();
-  ctx.fillStyle = col;
-  ctx.ellipse(e.pos.x, e.pos.y, r, r,0,0,Math.PI*2); ctx.fill();
-  ctx.fillStyle = '#331'; ctx.beginPath(); ctx.ellipse(e.pos.x-6, e.pos.y-3, r*0.2, r*0.25,0,0,Math.PI*2); ctx.fill();
-  const w = 40, h = 6; ctx.fillStyle='rgba(0,0,0,0.18)'; ctx.fillRect(e.pos.x - w/2, e.pos.y - r - 16, w, h);
-  ctx.fillStyle = '#ff6b6b'; ctx.fillRect(e.pos.x - w/2, e.pos.y - r - 16, w * Math.max(0, e.hp / e.maxHp), h);
-  ctx.restore();
-}
-
-function drawProjectile(p){
-  ctx.beginPath();
-  ctx.fillStyle = p.element==='fire' ? '#ff6b6b' : p.element==='water' ? '#6bb8ff' : '#ffd166';
-  ctx.ellipse(p.x, p.y, 6 + (p.dmg>10?4:0), 6 + (p.dmg>10?4:0),0,0,Math.PI*2); ctx.fill();
-}
-
-function drawCoin(c){
-  ctx.beginPath(); ctx.fillStyle = '#ffe082'; ctx.ellipse(c.x, c.y, 10,10,0,0,Math.PI*2); ctx.fill();
-  ctx.fillStyle='#663f00'; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText('+'+c.value, c.x, c.y-14);
-}
-
-function drawHudOverlay(){
-  ctx.fillStyle = 'rgba(20,30,60,0.06)'; ctx.fillRect(8,8,220,46);
-  ctx.fillStyle = '#222'; ctx.font='18px sans-serif'; ctx.textAlign='left'; ctx.fillText('Coin: '+state.coins, 16, 30);
-  ctx.fillText('Score: '+state.score, 120, 30);
-}
-
-document.getElementById('startWaveBtn').addEventListener('click', ()=>{
-  if(!state.running) startWave(state.wave+1);
-});
-document.getElementById('newGameBtn').addEventListener('click', ()=>{ resetGame(); });
-document.getElementById('speedBtn').addEventListener('click', ()=>{
-  state.speedMultiplier = state.speedMultiplier === 1 ? 1.8 : 1; document.getElementById('speedBtn').textContent = 'Hız x' + (state.speedMultiplier===1? '1' : '1.8');
-});
-
-function startWave(n){
-  if(state.running) return;
-  state.running = true;
-  state.wave = n;
-  document.getElementById('levelVal').textContent = state.level;
-  spawnWave(n);
-  updateHud();
-}
-
-function resetGame(){
-  state.coins = CONFIG.startCoins; state.score = 0; state.wave = 0; state.level = 1; state.baseHp = CONFIG.baseHp;
-  state.enemies = []; state.towers = []; state.projectiles=[]; state.placedCoins=[]; state.running=false;
-  updateHud();
-}
-
-function endGame(win){
-  showModal(win? 'Kazandın!' : 'Oyun Bitti', win? 'Tebrikler, zafere ulaştın!' : 'Kale yıkıldı. Yeni oyuna başla.');
-  state.running = false;
-}
-
-function updateHud(){
-  document.getElementById('coinsLabel').textContent = 'Coin: ' + state.coins;
-  document.getElementById('scoreVal').textContent = state.score;
-  document.getElementById('levelVal').textContent = state.level;
-  document.getElementById('baseHp').textContent = state.baseHp;
-}
-
-CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r){
-  if (w < 2 * r) r = w / 2;
-  if (h < 2 * r) r = h / 2;
-  this.beginPath();
-  this.moveTo(x + r, y);
-  this.arcTo(x + w, y, x + w, y + h, r);
-  this.arcTo(x + w, y + h, x, y + h, r);
-  this.arcTo(x, y + h, x, y, r);
-  this.arcTo(x, y, x + w, y, r);
-  this.closePath();
-  return this;
-};
-
-canvas.addEventListener('touchstart', (e)=>{ e.preventDefault(); }, {passive:false});
-
-</script>
+    updateCoins();
+    draw();
+  </script>
 </body>
 </html>
