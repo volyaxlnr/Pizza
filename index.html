@@ -3,9 +3,65 @@
 <head>
   <meta charset="UTF-8">
   <title>Wizard Adventure</title>
-  <script src="https://cdn.jsdelivr.net/npm/phaser@3/dist/phaser.js"></script>
-  <script src="game.js"></script>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background: black;
+    }
+    canvas {
+      display: block;
+      margin: 0 auto;
+      background: #1a1a1a;
+    }
+  </style>
 </head>
-<body style="margin:0; padding:0; overflow:hidden;">
+<body>
+  <canvas id="gameCanvas"></canvas>
+  <script>
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    // Attack frame sayısı
+    const totalFrames = 14;
+    let images = [];
+    let frameIndex = 0;
+    let frameSpeed = 5; // 5 frame’de bir sonraki resme geç (animasyonu yavaşlatmak için)
+    let counter = 0;
+
+    // Resimleri yükle
+    for (let i = 1; i <= totalFrames; i++) {
+      let img = new Image();
+      img.src = `assets/character/attack/attack_${i}.png`;
+      images.push(img);
+    }
+
+    function animate() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Karakteri ortada çizelim
+      let currentImage = images[frameIndex];
+      if (currentImage.complete) {
+        ctx.drawImage(
+          currentImage,
+          canvas.width / 2 - currentImage.width / 2,
+          canvas.height / 2 - currentImage.height / 2
+        );
+      }
+
+      // Frame ilerlet
+      counter++;
+      if (counter % frameSpeed === 0) {
+        frameIndex = (frameIndex + 1) % totalFrames;
+      }
+
+      requestAnimationFrame(animate);
+    }
+
+    animate();
+  </script>
 </body>
 </html>
